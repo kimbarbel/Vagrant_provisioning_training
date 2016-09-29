@@ -13,6 +13,8 @@ Vagrant.configure("2") do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "centos/7"
+  config.vm.box_check_update = false
+  config.ssh.forward_agent = true
 
   # Workaround: https://github.com/mitchellh/vagrant/issues/7610
   config.ssh.insert_key = false 
@@ -40,12 +42,18 @@ Vagrant.configure("2") do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
+  config.vm.synced_folder "../Vagrant_provisioning_training", "/vagrant"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
+  config.vm.provider "virtualbox" do |vb, override|
+    vb.gui = false
+
+    vb.cpus = 2       # NOTE: integration tests fail with less than 2
+    vb.memory = 4096  # NOTE: integration tests tend to crash with less (gcc)
+  end
   # config.vm.provider "virtualbox" do |vb|
   #   # Display the VirtualBox GUI when booting the machine
   #   vb.gui = true
@@ -63,7 +71,7 @@ Vagrant.configure("2") do |config|
   # config.push.define "atlas" do |push|
   #   push.app = "YOUR_ATLAS_USERNAME/YOUR_APPLICATION_NAME"
   # end
-
+  config.vm.provision "shell", path: "provision/install_centos_deps.sh"
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
